@@ -1,10 +1,12 @@
 package com.example.restaurant.restaurantservice.service;
 
+import com.example.restaurant.restaurantservice.client.UserClient;
 import com.example.restaurant.restaurantservice.dto.PasswordRequest;
 import com.example.restaurant.restaurantservice.dto.RestaurantDTO;
+import com.example.restaurant.restaurantservice.dto.UserDto;
 import com.example.restaurant.restaurantservice.entity.Restaurant;
 import com.example.restaurant.restaurantservice.respository.RestaurantRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,16 +15,19 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
+@Slf4j
 public class RestaurantService {
 
     private final RestaurantRepository restaurantrepository;
 
     private final PasswordEncoder passwordEncoder;
+    private final UserClient client;
 
 
-    public RestaurantService(RestaurantRepository restaurantrepository, PasswordEncoder passwordEncoder) {
+    public RestaurantService(RestaurantRepository restaurantrepository, PasswordEncoder passwordEncoder, UserClient client) {
         this.restaurantrepository = restaurantrepository;
         this.passwordEncoder = passwordEncoder;
+        this.client = client;
     }
 
     public Restaurant getUser(String email){
@@ -40,8 +45,11 @@ public class RestaurantService {
 
     public Restaurant map(RestaurantDTO userdto)
     {
+        UserDto dto = client.getUserById(userdto.getEmail());
+        log.info("dto is :" + dto);
         Restaurant user = new Restaurant();
         user.setEmail(userdto.getEmail());
+        user.setOwnerId(dto.getId().longValue());
         user.setName(userdto.getName());
         user.setCreatedAt(LocalDateTime.now());
         user.setPassword(passwordEncoder.encode(userdto.getPassword()));
@@ -63,9 +71,15 @@ public class RestaurantService {
         RestaurantDTO userdto = new RestaurantDTO();
         userdto.setEmail(user.getEmail());
         userdto.setName(user.getName());
-        userdto.setPassword(passwordEncoder.encode(user.getPassword()));
+//        userdto.setPassword(passwordEncoder.encode(user.getPassword()));
         userdto.setStatus(user.getStatus());
         userdto.setPhone_number(user.getPhoneNumber());
+        userdto.setOpeningTime(user.getOpeningTime());
+        userdto.setClosingTime(user.getClosingTime());
+        userdto.setCuisine(user.getCuisine());
+        userdto.setAddress(user.getAddress());
+        userdto.setOwnerId(user.getOwnerId());
+
 
         return userdto;
 

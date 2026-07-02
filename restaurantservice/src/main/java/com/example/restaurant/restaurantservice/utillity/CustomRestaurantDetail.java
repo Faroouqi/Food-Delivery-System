@@ -48,4 +48,13 @@ public class CustomRestaurantDetail implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public Long getId()
+    {
+        return restaurant.getId();
+    }
+
+    public Restaurant getRestaurant() {
+        return restaurant;
+    }
 }

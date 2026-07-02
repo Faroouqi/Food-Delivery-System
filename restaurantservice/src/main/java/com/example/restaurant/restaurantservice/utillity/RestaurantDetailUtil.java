@@ -26,13 +26,17 @@ public class RestaurantDetailUtil {
         return null;
     }
 
-    public Restaurant getUser()
+    public CustomRestaurantDetail  getUser()
     {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(!(authentication instanceof AnonymousAuthenticationToken)) {
-            return restaurantService.getUser(authentication.getName());
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null ||
+                !(authentication.getPrincipal() instanceof CustomRestaurantDetail)) {
+            return null;
         }
-        return null;
+
+        return (CustomRestaurantDetail) authentication.getPrincipal();
     }
     public boolean isValidUser()
     {

@@ -7,10 +7,18 @@ import java.time.LocalDateTime;
 
 public class UserRequestDTO {
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    private Integer id;
     @NotBlank
     private String username;
 
-    @NotBlank
     private String password;
 
     @Email
@@ -18,6 +26,7 @@ public class UserRequestDTO {
 
     @NotBlank
     private String phoneNumber;
+    @NotBlank
     private String role;
     private String image;
 

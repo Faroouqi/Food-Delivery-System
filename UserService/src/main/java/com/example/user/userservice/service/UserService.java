@@ -45,7 +45,7 @@ public class UserService {
         user.setCreatedAt(LocalDateTime.now());
         user.setPassword(passwordEncoder.encode(userdto.getPassword()));
         user.setRole(userdto.getRole());
-        user.setStatus(userdto.getStatus());
+        user.setStatus("Available");
         user.setPhoneNumber(userdto.getPhoneNumber());
         user.setProfileImageUrl(userdto.getImage());
         user.setUpdateAt(LocalDateTime.now());
@@ -57,6 +57,7 @@ public class UserService {
     {
         UserRequestDTO userdto = new UserRequestDTO();
         userdto.setEmail(user.getEmail());
+        userdto.setId(user.getId());
         userdto.setUsername(user.getName());
         userdto.setCreatedAt(LocalDateTime.now());
         userdto.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -90,6 +91,16 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         user.setUpdateAt(LocalDateTime.now());
-        save(reverserMap(user));
+        userRepository.save(user);
+    }
+    public UserRequestDTO updateProfile(UserRequestDTO dto,User user)
+    {
+
+        user.setRole(dto.getRole());
+        user.setEmail(dto.getEmail());
+        user.setName(dto.getUsername());
+        user.setPhoneNumber(dto.getPhoneNumber());
+        User save = userRepository.save(user);
+        return reverserMap(save);
     }
 }

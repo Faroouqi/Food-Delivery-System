@@ -23,6 +23,7 @@ public class CustomAuthenticationSucccessHandler implements AuthenticationSucces
         String username = userDetails.getUsername();
         String roles = userDetails.getAuthorities().toString();
 
+
         log.info("User '{}' successfully logged in with roles {}", username, roles);
 
         response.setStatus(HttpServletResponse.SC_OK);

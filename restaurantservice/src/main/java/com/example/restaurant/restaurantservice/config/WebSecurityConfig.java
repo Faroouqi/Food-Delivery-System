@@ -20,13 +20,14 @@ import java.util.List;
 
 @Configuration
 public class WebSecurityConfig {
-    private final CustomRestaurantDetailsService customUserDetails;
+    @Autowired
+    private  CustomRestaurantDetailsService customUserDetails;
 
     @Autowired
     private CustomAuthenticationSucccessHandler customAuthenticationSucccessHandler;
 
     private final String[] publicUrl = {
-            "/", "/register", "/login", "/logout", "/home","/send-otp", "/verify-otp","/reset-password"
+            "/", "/api/restaurant/register", "/login", "/logout", "/home","/send-otp", "/verify-otp","/reset-password"
     };
 
     @Autowired

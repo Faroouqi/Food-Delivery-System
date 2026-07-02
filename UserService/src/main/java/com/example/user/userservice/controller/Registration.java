@@ -63,7 +63,7 @@ public class Registration {
     {
         if(util.getUser()==null) return errorMessage("Login Please");
         return ResponseEntity
-                .ok(userService.save(userDto));
+                .ok(userService.updateProfile(userDto,util.getUser()));
     }
 
     @PutMapping("reset-password")
@@ -89,7 +89,13 @@ public class Registration {
         User user = util.getUser();
         return ResponseEntity.ok(userService.reverserMap(userService.getUser(user.getEmail())));
     }
+    @GetMapping("/email")
+    public ResponseEntity<?> getUser(@RequestParam String email)
+    {
+        if(!userService.isEmailExist(email)) return null;
 
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.getUser(email));
+    }
     public ResponseEntity<?> errorMessage(String mess)
     {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mess);

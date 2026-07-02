@@ -20,6 +20,16 @@ public class Restaurant {
     @Column(name = "name", length = 100)
     private String name;
 
+    public Long getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    @Column(name="owner_id")
+    private Long ownerId;
     @Column(name = "email", length = 100)
     private String email;
 
@@ -54,12 +64,12 @@ public class Restaurant {
     public Restaurant() {
     }
 
-    public Long getOwnerId() {
+    public Long getId() {
         return id;
     }
 
-    public void setOwnerId(Long ownerId) {
-        this.id = ownerId;
+    public void setId(Long Id) {
+        this.id = Id;
     }
 
     public String getName() {

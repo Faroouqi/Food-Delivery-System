@@ -25,7 +25,7 @@ public class WebSecurityConfig {
     private CustomAuthenticationSucccessHandler customAuthenticationSucccessHandler;
 
     private final String[] publicUrl = {
-            "/", "/register", "/login", "/logout", "/home","/send-otp", "/verify-otp","/reset-password"
+            "/", "/api/users/register", "/login", "/logout", "/home","/send-otp", "/verify-otp","/reset-password"
     };
 
     @Autowired
@@ -50,7 +50,9 @@ public class WebSecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginProcessingUrl("/login") // Handles POST from frontend
+                        .loginProcessingUrl("/login")
+                        .usernameParameter("email")
+                        .passwordParameter("password")
                         .successHandler(customAuthenticationSucccessHandler)
                         .permitAll()
                 )
