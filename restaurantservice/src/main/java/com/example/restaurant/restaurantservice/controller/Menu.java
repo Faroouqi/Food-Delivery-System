@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @Slf4j
 @RequestMapping("api/menu")
@@ -59,6 +61,14 @@ public class Menu {
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
+    @GetMapping("/characteristic")
+    public List<String> getCharacteristic(@RequestParam String chara)
+    {
+        if(!restaurantDetailUtil.isValidUser()){
+            return (List<String>) ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not Authorized in");
+        }
+        return service.getMenuOnCharacteristic(restaurantDetailUtil.getUser().getId().intValue(),chara);
+    }
     @DeleteMapping("delete/{id}")
     public ResponseEntity<?> deleteMenu(@PathVariable Integer id)
     {
@@ -66,4 +76,5 @@ public class Menu {
         log.info("Deleted Successfully");
         return ResponseEntity.ok("Deleted Successfully");
     }
+
 }

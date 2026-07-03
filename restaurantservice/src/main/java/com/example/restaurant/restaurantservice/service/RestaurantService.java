@@ -45,14 +45,19 @@ public class RestaurantService {
 
     public Restaurant map(RestaurantDTO userdto)
     {
-        UserDto dto = client.getUserById(userdto.getEmail());
-        log.info("dto is :" + dto);
+//        UserDto dto = client.getUserById(userdto.getEmail());
+//        log.info("dto is :" + dto);
         Restaurant user = new Restaurant();
         user.setEmail(userdto.getEmail());
-        user.setOwnerId(dto.getId().longValue());
+        user.setOwnerId(Long.getLong("1"));
         user.setName(userdto.getName());
         user.setCreatedAt(LocalDateTime.now());
-        user.setPassword(passwordEncoder.encode(userdto.getPassword()));
+        System.out.println("Raw Password: " + userdto.getPassword());
+
+        String hash = passwordEncoder.encode(userdto.getPassword());
+        System.out.println("Encoded Password: " + hash);
+
+        user.setPassword(hash);
         user.setStatus(userdto.getStatus());
         user.setPhoneNumber(userdto.getPhone_number());
         user.setUpdatedAt(LocalDateTime.now());

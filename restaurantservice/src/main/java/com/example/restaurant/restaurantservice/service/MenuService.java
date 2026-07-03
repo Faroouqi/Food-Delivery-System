@@ -5,13 +5,17 @@ import com.example.restaurant.restaurantservice.dto.MenuItemDTO;
 import com.example.restaurant.restaurantservice.entity.MenuItem;
 import com.example.restaurant.restaurantservice.entity.Restaurant;
 import com.example.restaurant.restaurantservice.respository.MenuRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class MenuService {
     private final MenuRepository repository;
 
@@ -46,7 +50,16 @@ public class MenuService {
     {
         repository.deleteById(id);
     }
-
+    public List<String> getMenuOnCharacteristic(Integer id,String chara)
+    {
+        log.info("Resturant id is: "+id+" and category is: "+chara);
+        List<String> menuItem = repository.findByRestaurantId(id,chara);
+        if(menuItem.isEmpty())
+        {
+            return new ArrayList<>();
+        }
+        return menuItem;
+    }
     public static MenuItem toEntity(MenuItemDTO dto) {
         if (dto == null) {
             return null;

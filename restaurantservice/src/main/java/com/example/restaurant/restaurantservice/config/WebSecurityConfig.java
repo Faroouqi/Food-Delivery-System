@@ -27,7 +27,7 @@ public class WebSecurityConfig {
     private CustomAuthenticationSucccessHandler customAuthenticationSucccessHandler;
 
     private final String[] publicUrl = {
-            "/", "/api/restaurant/register", "/login", "/logout", "/home","/send-otp", "/verify-otp","/reset-password"
+            "/", "/api/restaurant/register","/api/restaurant/test", "/login", "/logout", "/home","/send-otp", "/verify-otp","/reset-password"
     };
 
     @Autowired
@@ -52,7 +52,7 @@ public class WebSecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginProcessingUrl("/login") // Handles POST from frontend
+                        .loginProcessingUrl("/login")
                         .successHandler(customAuthenticationSucccessHandler)
                         .permitAll()
                 )
@@ -72,7 +72,9 @@ public class WebSecurityConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
+        System.out.println("First");
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(customUserDetails);
+        System.out.println("Second");
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
     }

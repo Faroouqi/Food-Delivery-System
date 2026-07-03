@@ -11,6 +11,7 @@ public class CustomRestaurantDetail implements UserDetails {
     private final Restaurant restaurant;
 
     public CustomRestaurantDetail(Restaurant restaurant) {
+        System.out.println("In CustomRestaurantDetail");
         this.restaurant = restaurant;
     }
 

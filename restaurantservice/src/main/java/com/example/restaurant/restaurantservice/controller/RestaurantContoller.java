@@ -1,23 +1,27 @@
 package com.example.restaurant.restaurantservice.controller;
 
 import com.example.restaurant.restaurantservice.dto.RestaurantDTO;
+import com.example.restaurant.restaurantservice.entity.Restaurant;
 import com.example.restaurant.restaurantservice.service.RestaurantService;
 import com.example.restaurant.restaurantservice.utillity.RestaurantDetailUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
 @RequestMapping("/api/restaurant/")
-public class Restaurant {
+public class RestaurantContoller {
     private final RestaurantService restaurantService;
     private final RestaurantDetailUtil restaurantDetailUtil;
+    private final PasswordEncoder encoder;
 
-    public Restaurant(RestaurantService restaurantService, RestaurantDetailUtil restaurantDetailUtil) {
+    public RestaurantContoller(RestaurantService restaurantService, RestaurantDetailUtil restaurantDetailUtil, PasswordEncoder encoder) {
         this.restaurantService = restaurantService;
         this.restaurantDetailUtil = restaurantDetailUtil;
+        this.encoder = encoder;
     }
 
     @PostMapping("register")
@@ -39,5 +43,16 @@ public class Restaurant {
         return ResponseEntity.ok(restaurantService.save(dto));
     }
 
+    @GetMapping("test")
+    public String test() {
 
+        Restaurant restaurant =restaurantService.getUser("johnq1@example.com");
+
+        boolean matches = encoder.matches(
+                "NewPassword@123",
+                restaurant.getPassword()
+        );
+
+        return String.valueOf(matches);
+    }
 }
