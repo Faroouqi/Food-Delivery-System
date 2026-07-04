@@ -1,23 +1,20 @@
-package com.example.restaurant.restaurantservice.dto;
+package com.example.order.orderservice.dto;
 
-import org.apache.poi.hpsf.Decimal;
-
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-public class RestaurantDTO {
+public class RestaurantDto {
     private String name;
     private String email;
 
     public Long getId() {
-        return id;
+        return Id;
     }
 
     public void setId(Long id) {
-        this.id = id;
+        Id = id;
     }
 
-    private Long id;
+    private Long Id;
     private String password;
     private String phone_number;
     private String address;
@@ -106,3 +103,4 @@ public class RestaurantDTO {
         this.status = status;
     }
 }
+

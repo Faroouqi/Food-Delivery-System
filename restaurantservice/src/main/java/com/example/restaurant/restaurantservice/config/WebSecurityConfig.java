@@ -5,10 +5,12 @@ import com.example.restaurant.restaurantservice.service.CustomRestaurantDetailsS
 import com.example.restaurant.restaurantservice.utillity.CustomRestaurantDetail;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,6 +25,9 @@ public class WebSecurityConfig {
     @Autowired
     private  CustomRestaurantDetailsService customUserDetails;
 
+
+    @Value("${internal.api.key}")
+    private String internalApiKey;
     @Autowired
     private CustomAuthenticationSucccessHandler customAuthenticationSucccessHandler;
 
@@ -48,6 +53,11 @@ public class WebSecurityConfig {
                     return config;
                 }))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/restaurant/profile").access((authentication, context) -> {
+                            String providedKey = context.getRequest().getHeader("X-Internal-Api-Key");
+                            boolean valid = internalApiKey.equals(providedKey);
+                            return new AuthorizationDecision(valid);
+                        })
                         .requestMatchers(publicUrl).permitAll()
                         .anyRequest().authenticated()
                 )

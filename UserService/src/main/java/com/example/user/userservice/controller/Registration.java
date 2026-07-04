@@ -44,6 +44,7 @@ public class Registration {
             log.error("Email already exists: {}", userRequestDTO.getEmail());
             return errorMessage("Email already in use");
         }
+        log.info("First");
         UserRequestDTO save = userService.save(userRequestDTO);
         return ResponseEntity
                 .status(HttpStatus.CREATED)

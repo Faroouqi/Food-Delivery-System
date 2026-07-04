@@ -1,10 +1,13 @@
 package com.example.user.userservice.service;
 
+import com.example.user.userservice.dto.OrderEvent;
 import com.example.user.userservice.dto.PasswordRequest;
 import com.example.user.userservice.dto.UserRequestDTO;
 import com.example.user.userservice.entity.User;
 import com.example.user.userservice.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,12 +15,27 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
+@Slf4j
 public class UserService {
 
     @Autowired
     private final UserRepository userRepository;
     @Autowired
     private final PasswordEncoder passwordEncoder;
+
+    @KafkaListener(topics = "order-placed-topic", groupId = "user-notification-group")
+    public void onOrderCreated(OrderEvent event) {
+        System.out.println("=========================================");
+        System.out.println("🎯 SUCCESS! Notify user " + event.getUserId() + ": order placed!");
+        System.out.println("=========================================");
+    }
+
+    @KafkaListener(topics = "order-status-events", groupId = "user-notification-group")
+    public void onStatusUpdate(OrderEvent event) {
+        System.out.println("Order " + event.getOrderId() + " updated to " + event.getStatus());
+    }
+
+
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -34,11 +52,13 @@ public class UserService {
     public UserRequestDTO save(UserRequestDTO user)
     {
         User user1 = userRepository.save(map(user));
+        log.info("Third");
         return reverserMap(user1);
     }
 
     public User map(UserRequestDTO userdto)
     {
+        log.info("Second");
         User user = new User();
         user.setEmail(userdto.getEmail());
         user.setName(userdto.getUsername());
@@ -55,6 +75,7 @@ public class UserService {
 
     public UserRequestDTO reverserMap(User user)
     {
+        log.info("Fourth");
         UserRequestDTO userdto = new UserRequestDTO();
         userdto.setEmail(user.getEmail());
         userdto.setId(user.getId());

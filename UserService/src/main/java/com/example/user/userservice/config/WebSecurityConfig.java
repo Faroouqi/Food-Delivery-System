@@ -3,10 +3,12 @@ package com.example.user.userservice.config;
 import com.example.user.userservice.service.CustomUserDetailsService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,6 +21,8 @@ import java.util.List;
 @Configuration
 public class WebSecurityConfig {
 
+    @Value("${internal.api.key}")
+    private String internalApiKey;
     private final CustomUserDetailsService customUserDetails;
 
     @Autowired
@@ -34,7 +38,7 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(request -> {
@@ -46,7 +50,15 @@ public class WebSecurityConfig {
                     return config;
                 }))
                 .authorizeHttpRequests(auth -> auth
+                        // 1. Specific API Authorization (Checked first)
+                        .requestMatchers("/api/users/email").access((authentication, context) -> {
+                            String providedKey = context.getRequest().getHeader("X-Internal-Api-Key");
+                            boolean valid = internalApiKey.equals(providedKey);
+                            return new AuthorizationDecision(valid);
+                        })
+                        // 2. Public endpoints
                         .requestMatchers(publicUrl).permitAll()
+                        // 3. Fallback for all other endpoints
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -61,7 +73,6 @@ public class WebSecurityConfig {
                         .logoutSuccessHandler((req, res, auth) ->
                                 res.setStatus(HttpServletResponse.SC_OK))
                 )
-                // .httpBasic(Customizer.withDefaults())  ← 🗑️ remove this line
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((req, res, authException) ->
                                 res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"))

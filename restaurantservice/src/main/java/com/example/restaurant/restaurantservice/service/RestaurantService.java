@@ -1,12 +1,15 @@
 package com.example.restaurant.restaurantservice.service;
 
 import com.example.restaurant.restaurantservice.client.UserClient;
+import com.example.restaurant.restaurantservice.dto.OrderEvent;
 import com.example.restaurant.restaurantservice.dto.PasswordRequest;
 import com.example.restaurant.restaurantservice.dto.RestaurantDTO;
 import com.example.restaurant.restaurantservice.dto.UserDto;
 import com.example.restaurant.restaurantservice.entity.Restaurant;
 import com.example.restaurant.restaurantservice.respository.RestaurantRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,15 +26,27 @@ public class RestaurantService {
     private final PasswordEncoder passwordEncoder;
     private final UserClient client;
 
-
-    public RestaurantService(RestaurantRepository restaurantrepository, PasswordEncoder passwordEncoder, UserClient client) {
+    private final KafkaTemplate<Long,OrderEvent> kafkaTemplate;
+    public RestaurantService(RestaurantRepository restaurantrepository, PasswordEncoder passwordEncoder, UserClient client, KafkaTemplate<Long, OrderEvent> kafkaTemplate) {
         this.restaurantrepository = restaurantrepository;
         this.passwordEncoder = passwordEncoder;
         this.client = client;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
-    public Restaurant getUser(String email){
-        return restaurantrepository.findByEmail(email).orElseThrow(()-> new UsernameNotFoundException("Could not find User"));
+    @KafkaListener(topics = "order-events", groupId = "restaurant-service-group")
+    public void onOrderCreated(OrderEvent event) {
+        System.out.println("Restaurant received new order: " + event.getOrderId());
+
+        // simulate restaurant accepting the order
+        event.setStatus("ACCEPTED");
+//        event.setTimestamp(Instant.now());
+        kafkaTemplate.send("order-status-events", event.getOrderId(), event);
+    }
+    public RestaurantDTO getUser(String email){
+        log.info("Email is :" + email);
+    Restaurant save = restaurantrepository.findByEmail(email).orElseThrow(()-> new UsernameNotFoundException("Could not find User"));
+    return reverserMap(save);
     }
     public boolean isEmailExist(String email)
     {
@@ -45,11 +60,11 @@ public class RestaurantService {
 
     public Restaurant map(RestaurantDTO userdto)
     {
-//        UserDto dto = client.getUserById(userdto.getEmail());
-//        log.info("dto is :" + dto);
+        UserDto dto = client.getUserById(userdto.getEmail());
+        log.info("id is : " + dto.getId());
         Restaurant user = new Restaurant();
         user.setEmail(userdto.getEmail());
-        user.setOwnerId(Long.getLong("1"));
+        user.setOwnerId(dto.getId().longValue());
         user.setName(userdto.getName());
         user.setCreatedAt(LocalDateTime.now());
         System.out.println("Raw Password: " + userdto.getPassword());
@@ -74,6 +89,7 @@ public class RestaurantService {
     public RestaurantDTO reverserMap(Restaurant user)
     {
         RestaurantDTO userdto = new RestaurantDTO();
+        userdto.setId(user.getId());
         userdto.setEmail(user.getEmail());
         userdto.setName(user.getName());
 //        userdto.setPassword(passwordEncoder.encode(user.getPassword()));

@@ -43,16 +43,23 @@ public class RestaurantContoller {
         return ResponseEntity.ok(restaurantService.save(dto));
     }
 
-    @GetMapping("test")
-    public String test() {
+//    @GetMapping("test")
+//    public String test() {
+//
+//        Restaurant restaurant =restaurantService.getUser("johnq1@example.com");
+//
+//        boolean matches = encoder.matches(
+//                "NewPassword@123",
+//                restaurant.getPassword()
+//        );
+//
+//        return String.valueOf(matches);
+//    }
+    @GetMapping("profile")
+    public ResponseEntity<?> getRestaurant(@RequestParam String email)
+    {
+        if(!restaurantService.isEmailExist(email)) return null;
 
-        Restaurant restaurant =restaurantService.getUser("johnq1@example.com");
-
-        boolean matches = encoder.matches(
-                "NewPassword@123",
-                restaurant.getPassword()
-        );
-
-        return String.valueOf(matches);
+        return ResponseEntity.status(HttpStatus.CREATED).body(restaurantService.getUser(email));
     }
 }

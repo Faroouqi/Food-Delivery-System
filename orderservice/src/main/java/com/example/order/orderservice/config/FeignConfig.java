@@ -1,5 +1,4 @@
-package com.example.restaurant.restaurantservice.config;
-
+package com.example.order.orderservice.config;
 
 import feign.RequestInterceptor;
 import jakarta.servlet.http.HttpServletRequest;
