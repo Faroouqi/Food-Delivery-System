@@ -7,6 +7,7 @@ import com.example.user.userservice.entity.User;
 import com.example.user.userservice.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 
 @Service
 @Slf4j
+//@EnableKafka
 public class UserService {
 
     @Autowired

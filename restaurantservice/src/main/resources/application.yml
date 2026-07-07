@@ -10,4 +10,6 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
-#        spring.json.value.default.type: com.
+        spring.json.value.default.type: "com.example.restaurant.restaurantservice.dto.OrderEvent"
+        spring.json.use.type.headers: "false"
+      auto-offset-reset: earliest

@@ -26,27 +26,27 @@ public class RestaurantService {
     private final PasswordEncoder passwordEncoder;
     private final UserClient client;
 
-    private final KafkaTemplate<Long,OrderEvent> kafkaTemplate;
-    public RestaurantService(RestaurantRepository restaurantrepository, PasswordEncoder passwordEncoder, UserClient client, KafkaTemplate<Long, OrderEvent> kafkaTemplate) {
+    private final KafkaTemplate<String, OrderEvent> kafkaTemplate;
+    public RestaurantService(RestaurantRepository restaurantrepository, PasswordEncoder passwordEncoder, UserClient client, KafkaTemplate<String, OrderEvent> kafkaTemplate) {
         this.restaurantrepository = restaurantrepository;
         this.passwordEncoder = passwordEncoder;
         this.client = client;
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    @KafkaListener(topics = "order-events", groupId = "restaurant-service-group")
+    @KafkaListener(topics = "order-placed-topic", groupId = "restaurant-service-group")
     public void onOrderCreated(OrderEvent event) {
         System.out.println("Restaurant received new order: " + event.getOrderId());
 
         // simulate restaurant accepting the order
         event.setStatus("ACCEPTED");
 //        event.setTimestamp(Instant.now());
-        kafkaTemplate.send("order-status-events", event.getOrderId(), event);
+        kafkaTemplate.send("order-status-events", String.valueOf(event.getOrderId()), event);
     }
     public RestaurantDTO getUser(String email){
         log.info("Email is :" + email);
-    Restaurant save = restaurantrepository.findByEmail(email).orElseThrow(()-> new UsernameNotFoundException("Could not find User"));
-    return reverserMap(save);
+        Restaurant save = restaurantrepository.findByEmail(email).orElseThrow(()-> new UsernameNotFoundException("Could not find User"));
+        return reverserMap(save);
     }
     public boolean isEmailExist(String email)
     {
