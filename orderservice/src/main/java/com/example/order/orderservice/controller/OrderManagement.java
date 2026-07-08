@@ -1,15 +1,18 @@
 package com.example.order.orderservice.controller;
 
+import com.example.order.orderservice.client.PaymentClient;
 import com.example.order.orderservice.dto.OrderDto;
 import com.example.order.orderservice.dto.OrderEvent;
+import com.example.order.orderservice.dto.PaymentDTO;
 import com.example.order.orderservice.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("order/")
@@ -17,9 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderManagement {
 
     private final OrderService service;
+    private final PaymentClient paymentClient;
 
-    public OrderManagement(OrderService service) {
+
+    public OrderManagement(OrderService service, PaymentClient paymentClient) {
         this.service = service;
+        this.paymentClient = paymentClient;
     }
 
     @PostMapping("add")
@@ -38,10 +44,32 @@ public class OrderManagement {
         orderEvent.setUserId(dto.getUserId());
         orderEvent.setTotalAmount(dto.getTotalAmount());
         orderEvent.setRestaurantId(dto.getRestaurantId());
-        orderEvent.setStatus("Accepted");
+
+        orderEvent.setStatus("Pending");
         log.info("Order event is " + orderEvent + "--" + dto);
-        service.publishOrderPlaced(orderEvent);
+//        PaymentDTO dto1 = getDto(orderDto.getTotalAmount(),"Card");
+//        dto1.setOrderId(dto.getId());
+//        paymentClient.addPayment(dto1);
+        service.publishOrderPlaced(orderEvent,dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
 
     }
+    @GetMapping("view/{id}")
+    public ResponseEntity<?> viewOrder(@RequestParam Long id)
+    {
+        return ResponseEntity.ok(service.getOrders(id));
+    }
+
+    public PaymentDTO getDto(BigDecimal amount,String paymentMethod)
+    {
+        PaymentDTO dto = new PaymentDTO();
+        dto.setAmount(amount);
+        dto.setPaymentDate(LocalDateTime.now());
+        dto.setStatus("COMPLETED");
+
+        return dto;
+
+    }
+
+
 }

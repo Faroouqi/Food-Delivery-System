@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import static java.lang.Thread.sleep;
+
 @Service
 @Slf4j
 public class RestaurantService {
@@ -36,12 +38,54 @@ public class RestaurantService {
 
     @KafkaListener(topics = "order-placed-topic", groupId = "restaurant-service-group")
     public void onOrderCreated(OrderEvent event) {
-        System.out.println("Restaurant received new order: " + event.getOrderId());
 
-        // simulate restaurant accepting the order
-        event.setStatus("ACCEPTED");
-//        event.setTimestamp(Instant.now());
-        kafkaTemplate.send("order-status-events", String.valueOf(event.getOrderId()), event);
+        try {
+            if(event.getStatus().equals("COMPLETED")) return;
+            System.out.println("Restaurant received new order: " + event.getOrderId());
+            publishStatus(event,"ACCEPTED");
+            // Simulate restaurant processing
+
+            Thread.sleep(10000);
+            publishStatus(event,"PREPARING");
+
+            Thread.sleep(10000);
+            // Order accepted/completed
+            publishStatus(event,"DELIVERED");
+
+
+
+            System.out.println("Order completed: " + event.getOrderId());
+
+        } catch (Exception e) {
+
+            System.out.println("Failed to process order: " + event.getOrderId());
+
+            // Notify Order Service about failure
+            event.setStatus("FAILED");
+
+            kafkaTemplate.send(
+                    "order-status-events",
+                    String.valueOf(event.getOrderId()),
+                    event
+            );
+
+            e.printStackTrace();
+        }
+    }
+
+    private void publishStatus(OrderEvent original, String status) {
+        OrderEvent event = new OrderEvent();
+        event.setOrderId(original.getOrderId());
+        event.setUserId(original.getUserId());
+        event.setRestaurantId(original.getRestaurantId());
+        event.setTotalAmount(original.getTotalAmount());
+        event.setStatus(status);
+
+        kafkaTemplate.send(
+                "order-status-events",
+                String.valueOf(event.getOrderId()),
+                event
+        );
     }
     public RestaurantDTO getUser(String email){
         log.info("Email is :" + email);
