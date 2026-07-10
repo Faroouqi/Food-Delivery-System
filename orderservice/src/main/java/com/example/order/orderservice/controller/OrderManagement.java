@@ -47,9 +47,10 @@ public class OrderManagement {
 
         orderEvent.setStatus("Pending");
         log.info("Order event is " + orderEvent + "--" + dto);
-//        PaymentDTO dto1 = getDto(orderDto.getTotalAmount(),"Card");
-//        dto1.setOrderId(dto.getId());
-//        paymentClient.addPayment(dto1);
+        PaymentDTO dto1 = getDto(orderDto.getTotalAmount(),"Card");
+        dto1.setOrderId(dto.getId());
+        System.out.println("Dto is :" + dto1);
+        paymentClient.addPayment(dto1);
         service.publishOrderPlaced(orderEvent,dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
 

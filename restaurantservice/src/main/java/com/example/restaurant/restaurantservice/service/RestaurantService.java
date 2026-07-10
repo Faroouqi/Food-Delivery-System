@@ -111,12 +111,12 @@ public class RestaurantService {
         user.setOwnerId(dto.getId().longValue());
         user.setName(userdto.getName());
         user.setCreatedAt(LocalDateTime.now());
-        System.out.println("Raw Password: " + userdto.getPassword());
+        System.out.println("Raw Password: " + dto.getPassword());
 
-        String hash = passwordEncoder.encode(userdto.getPassword());
+        String hash = passwordEncoder.encode(dto.getPassword());
         System.out.println("Encoded Password: " + hash);
 
-        user.setPassword(hash);
+        user.setPassword(dto.getPassword());
         user.setStatus(userdto.getStatus());
         user.setPhoneNumber(userdto.getPhone_number());
         user.setUpdatedAt(LocalDateTime.now());
@@ -136,7 +136,7 @@ public class RestaurantService {
         userdto.setId(user.getId());
         userdto.setEmail(user.getEmail());
         userdto.setName(user.getName());
-//        userdto.setPassword(passwordEncoder.encode(user.getPassword()));
+        userdto.setPassword(user.getPassword());
         userdto.setStatus(user.getStatus());
         userdto.setPhone_number(user.getPhoneNumber());
         userdto.setOpeningTime(user.getOpeningTime());

@@ -47,6 +47,10 @@ public class UserService {
     public User getUser(String email){
         return userRepository.findByEmail(email).orElseThrow(()-> new UsernameNotFoundException("Could not find User"));
     }
+
+    public UserRequestDTO getUserDto(String email){
+        return reverserMap(userRepository.findByEmail(email).orElseThrow(()-> new UsernameNotFoundException("Could not find User")));
+    }
     public boolean isEmailExist(String email)
     {
         return userRepository.existsByEmail(email);
@@ -83,7 +87,7 @@ public class UserService {
         userdto.setId(user.getId());
         userdto.setUsername(user.getName());
         userdto.setCreatedAt(LocalDateTime.now());
-        userdto.setPassword(passwordEncoder.encode(user.getPassword()));
+        userdto.setPassword(user.getPassword());
         userdto.setRole(user.getRole());
         userdto.setStatus(user.getStatus());
         userdto.setPhoneNumber(user.getPhoneNumber());

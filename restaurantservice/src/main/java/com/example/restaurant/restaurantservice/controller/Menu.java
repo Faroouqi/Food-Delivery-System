@@ -33,11 +33,6 @@ public class Menu {
     @PostMapping("/add")
     public ResponseEntity<?> addMenu(@RequestBody MenuItemDTO menu) {
 
-        if (!restaurantDetailUtil.isValidUser()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Login to Restaurant");
-        }
-
         Long id = restaurantDetailUtil.getUser().getId();
 
         menu.setRestaurantId(id);

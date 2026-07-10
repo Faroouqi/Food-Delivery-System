@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -29,7 +30,7 @@ public class WebSecurityConfig {
     private CustomAuthenticationSucccessHandler customAuthenticationSucccessHandler;
 
     private final String[] publicUrl = {
-            "/", "/api/users/register", "/login", "/logout", "/home","/send-otp", "/verify-otp","/reset-password"
+            "/", "/api/users/register", "/login", "/logout", "/home", "/send-otp", "/verify-otp", "/reset-password"
     };
 
     @Autowired
@@ -50,11 +51,18 @@ public class WebSecurityConfig {
                     return config;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        // 1. Specific API Authorization (Checked first)
+                        // 1. Specific API Authorization (Allows authenticated user OR valid API key)
                         .requestMatchers("/api/users/email").access((authentication, context) -> {
+                            // Check if the current user is fully authenticated (logged in)
+                            boolean isUserLoggedIn = authentication.get().isAuthenticated()
+                                    && !(authentication.get() instanceof AnonymousAuthenticationToken);
+
+                            // Check if the request contains the valid service-to-service secret API key
                             String providedKey = context.getRequest().getHeader("X-Internal-Api-Key");
-                            boolean valid = internalApiKey.equals(providedKey);
-                            return new AuthorizationDecision(valid);
+                            boolean isValidApiKey = internalApiKey != null && internalApiKey.equals(providedKey);
+
+                            // Grant access if either condition is met
+                            return new AuthorizationDecision(isUserLoggedIn || isValidApiKey);
                         })
                         // 2. Public endpoints
                         .requestMatchers(publicUrl).permitAll()
@@ -83,7 +91,8 @@ public class WebSecurityConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(customUserDetails);
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        authenticationProvider.setUserDetailsService(customUserDetails);
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
     }

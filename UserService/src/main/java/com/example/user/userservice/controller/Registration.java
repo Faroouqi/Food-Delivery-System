@@ -95,7 +95,7 @@ public class Registration {
     {
         if(!userService.isEmailExist(email)) return null;
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.getUser(email));
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.getUserDto(email));
     }
     public ResponseEntity<?> errorMessage(String mess)
     {
