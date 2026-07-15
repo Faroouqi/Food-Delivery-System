@@ -15,7 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("order/")
+@RequestMapping("/order/")
 @Slf4j
 public class OrderManagement {
 
@@ -31,8 +31,9 @@ public class OrderManagement {
     @PostMapping("add")
     public ResponseEntity<?> addOrder(@RequestBody OrderDto orderDto)
     {
+        log.info("Inside the addOrder");
         Long userId = service.getUserId(orderDto.getEmail());
-        Long restaurantId = service.getRestaurantId(orderDto.getEmail());
+        Long restaurantId = orderDto.getRestaurantId();
         if(userId==null || restaurantId==null) return ResponseEntity.badRequest().body("Please Login");
 
         orderDto.setUserId(userId);

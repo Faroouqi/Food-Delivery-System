@@ -5,6 +5,7 @@ import com.example.restaurant.restaurantservice.dto.MenuItemDTO;
 import com.example.restaurant.restaurantservice.entity.MenuItem;
 import com.example.restaurant.restaurantservice.entity.Restaurant;
 import com.example.restaurant.restaurantservice.respository.MenuRepository;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -60,6 +61,11 @@ public class MenuService {
         }
         return menuItem;
     }
+    public List<MenuItemDTO> getBasedOnId(Integer id)
+    {
+        List<MenuItem> menuList = repository.findByRestId(id);
+        return menuList.stream().map(this::toDto).toList();
+    }
     public static MenuItem toEntity(MenuItemDTO dto) {
         if (dto == null) {
             return null;
@@ -78,7 +84,7 @@ public class MenuService {
     }
 
 
-    public static MenuItemDTO toDto(MenuItem entity) {
+    public MenuItemDTO toDto(MenuItem entity) {
         if (entity == null) {
             return null;
         }

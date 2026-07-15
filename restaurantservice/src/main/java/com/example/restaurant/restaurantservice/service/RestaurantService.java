@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static java.lang.Thread.sleep;
 
@@ -36,51 +37,55 @@ public class RestaurantService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    @KafkaListener(topics = "order-placed-topic", groupId = "restaurant-service-group")
-    public void onOrderCreated(OrderEvent event) {
+//    @KafkaListener(topics = "order-placed-topic", groupId = "restaurant-service-group")
+//    public void onOrderCreated(OrderEvent event) {
+//
+//        try {
+//            if(event.getStatus().equals("COMPLETED")) return;
+//            System.out.println("Restaurant received new order: " + event.getOrderId());
+//            publishStatus(event,"ACCEPTED");
+//            // Simulate restaurant processing
+//
+//            Thread.sleep(10000);
+//            publishStatus(event,"PREPARING");
+//
+//            Thread.sleep(10000);
+//            // Order accepted/completed
+//            publishStatus(event,"DELIVERED");
+//
+//
+//
+//            System.out.println("Order completed: " + event.getOrderId());
+//
+//        } catch (Exception e) {
+//
+//            System.out.println("Failed to process order: " + event.getOrderId());
+//
+//            // Notify Order Service about failure
+//            event.setStatus("FAILED");
+//
+//            kafkaTemplate.send(
+//                    "order-status-events",
+//                    String.valueOf(event.getOrderId()),
+//                    event
+//            );
+//
+//            e.printStackTrace();
+//        }
+//    }
 
-        try {
-            if(event.getStatus().equals("COMPLETED")) return;
-            System.out.println("Restaurant received new order: " + event.getOrderId());
-            publishStatus(event,"ACCEPTED");
-            // Simulate restaurant processing
-
-            Thread.sleep(10000);
-            publishStatus(event,"PREPARING");
-
-            Thread.sleep(10000);
-            // Order accepted/completed
-            publishStatus(event,"DELIVERED");
-
-
-
-            System.out.println("Order completed: " + event.getOrderId());
-
-        } catch (Exception e) {
-
-            System.out.println("Failed to process order: " + event.getOrderId());
-
-            // Notify Order Service about failure
-            event.setStatus("FAILED");
-
-            kafkaTemplate.send(
-                    "order-status-events",
-                    String.valueOf(event.getOrderId()),
-                    event
-            );
-
-            e.printStackTrace();
-        }
-    }
-
-    private void publishStatus(OrderEvent original, String status) {
-        OrderEvent event = new OrderEvent();
-        event.setOrderId(original.getOrderId());
-        event.setUserId(original.getUserId());
-        event.setRestaurantId(original.getRestaurantId());
-        event.setTotalAmount(original.getTotalAmount());
-        event.setStatus(status);
-
+//    private void publishStatus(OrderEvent original, String status) {
+//        OrderEvent event = new OrderEvent();
+//        event.setOrderId(original.getOrderId());
+//        event.setUserId(original.getUserId());
+//        event.setRestaurantId(original.getRestaurantId());
+//        event.setTotalAmount(original.getTotalAmount());
+//        event.setStatus(status);
+//
+//        publish(event);
+//    }
+    public void publish(OrderEvent event)
+    {
         kafkaTemplate.send(
                 "order-status-events",
                 String.valueOf(event.getOrderId()),
@@ -172,5 +177,28 @@ public class RestaurantService {
         user.setUpdatedAt(
                 LocalDateTime.now());
         save(reverserMap(user));
+    }
+
+    public List<RestaurantDTO> getCuisines(String type)
+    {
+        List<Restaurant> restaurantList = restaurantrepository.findByCuisine(type);
+        List<RestaurantDTO> cuisineList = restaurantList.stream()
+                .filter(restaurant -> type.equals(restaurant.getCuisine()))
+                .map(this::reverserMap)
+                .toList();
+
+        return cuisineList;
+    }
+    public List<String> getCu()
+    {
+        List<Restaurant> restaurantList = restaurantrepository.findAll();
+        List<String> cu = restaurantList.stream().map(Restaurant::getCuisine).toList();
+        return cu;
+    }
+
+    public List<RestaurantDTO> getAll() {
+        List<Restaurant> restaurantList = restaurantrepository.findAll();
+        List<RestaurantDTO> restaurantDTOS = restaurantList.stream().map(this::reverserMap).toList();
+        return restaurantDTOS;
     }
 }

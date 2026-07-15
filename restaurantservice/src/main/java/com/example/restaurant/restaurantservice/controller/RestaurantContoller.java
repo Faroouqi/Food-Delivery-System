@@ -1,5 +1,6 @@
 package com.example.restaurant.restaurantservice.controller;
 
+import com.example.restaurant.restaurantservice.dto.OrderEvent;
 import com.example.restaurant.restaurantservice.dto.RestaurantDTO;
 import com.example.restaurant.restaurantservice.entity.Restaurant;
 import com.example.restaurant.restaurantservice.service.RestaurantService;
@@ -43,18 +44,7 @@ public class RestaurantContoller {
         return ResponseEntity.ok(restaurantService.save(dto));
     }
 
-//    @GetMapping("test")
-//    public String test() {
-//
-//        Restaurant restaurant =restaurantService.getUser("johnq1@example.com");
-//
-//        boolean matches = encoder.matches(
-//                "NewPassword@123",
-//                restaurant.getPassword()
-//        );
-//
-//        return String.valueOf(matches);
-//    }
+
     @GetMapping("profile")
     public ResponseEntity<?> getRestaurant(@RequestParam String email)
     {
@@ -62,4 +52,70 @@ public class RestaurantContoller {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(restaurantService.getUser(email));
     }
+
+    @PutMapping("{id}/accept")
+    public ResponseEntity<?> accept(@PathVariable Long id){
+
+        OrderEvent event = new OrderEvent();
+
+        event.setOrderId(id);
+
+        event.setStatus("ACCEPTED");
+        restaurantService.publish(event);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("{id}/preparing")
+    public ResponseEntity<?> preparing(@PathVariable Long id){
+
+        OrderEvent event = new OrderEvent();
+
+        event.setOrderId(id);
+
+        event.setStatus("PREPARING");
+
+        restaurantService.publish(event);
+
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("{id}/delivered")
+    public ResponseEntity<?> delivered(@PathVariable Long id){
+
+        OrderEvent event = new OrderEvent();
+
+        event.setOrderId(id);
+
+        event.setStatus("DELIVERED");
+
+        restaurantService.publish(event);
+
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("listRestaurant")
+    public ResponseEntity<?> getRestaurantList(@RequestParam String type)
+    {
+
+
+        return ResponseEntity.ok(restaurantService.getCuisines(type));
+    }
+
+    @GetMapping("cusine")
+    public ResponseEntity<?> getCusine()
+    {
+
+        return ResponseEntity.ok(restaurantService.getCu());
+    }
+
+    @GetMapping("all")
+    public ResponseEntity<?> getAll()
+    {
+        return ResponseEntity.ok(restaurantService.getAll());
+    }
+
+
 }

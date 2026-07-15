@@ -59,17 +59,20 @@ public class Menu {
     @GetMapping("/characteristic")
     public List<String> getCharacteristic(@RequestParam String chara)
     {
-        if(!restaurantDetailUtil.isValidUser()){
-            return (List<String>) ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not Authorized in");
-        }
+
         return service.getMenuOnCharacteristic(restaurantDetailUtil.getUser().getId().intValue(),chara);
     }
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteMenu(@PathVariable Integer id)
     {
         service.deleteMenu(id);;
         log.info("Deleted Successfully");
         return ResponseEntity.ok("Deleted Successfully");
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getMenuByRestaurantId(@PathVariable Integer id)
+    {
+        return ResponseEntity.ok(service.getBasedOnId(id));
     }
 
 }
