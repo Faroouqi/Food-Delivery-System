@@ -66,6 +66,11 @@ public class MenuService {
         List<MenuItem> menuList = repository.findByRestId(id);
         return menuList.stream().map(this::toDto).toList();
     }
+    public MenuItemDTO getMenuBasedOnId(Integer id)
+    {
+        Optional<MenuItem> menuList = repository.findById(id);
+        return toDto(menuList.get());
+    }
     public static MenuItem toEntity(MenuItemDTO dto) {
         if (dto == null) {
             return null;

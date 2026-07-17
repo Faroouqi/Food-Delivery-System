@@ -32,7 +32,7 @@ public class WebSecurityConfig {
     private CustomAuthenticationSucccessHandler customAuthenticationSucccessHandler;
 
     private final String[] publicUrl = {
-            "api/menu/{id}","api/menu/characteristic","/", "/api/restaurant/register","/api/restaurant/listRestaurant","/api/restaurant/all","/api/restaurant/cusine","/api/restaurant/test", "/login", "/logout", "/home","/send-otp", "/verify-otp","/reset-password"
+            "api/menu/{id}","api/menu/get/{id}","api/menu/characteristic","/", "/api/restaurant/register","/api/restaurant/listRestaurant","/api/restaurant/all","/api/restaurant/cusine","/api/restaurant/test", "/login", "/logout", "/home","/send-otp", "/verify-otp","/reset-password"
     };
 
     @Autowired

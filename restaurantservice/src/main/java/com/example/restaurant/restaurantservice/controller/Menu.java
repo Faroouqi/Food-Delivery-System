@@ -75,4 +75,10 @@ public class Menu {
         return ResponseEntity.ok(service.getBasedOnId(id));
     }
 
+    @GetMapping("get/{id}")
+    public ResponseEntity<?> getMenuById(@PathVariable Integer id)
+    {
+        return ResponseEntity.ok(service.getMenuBasedOnId(id));
+    }
+
 }
