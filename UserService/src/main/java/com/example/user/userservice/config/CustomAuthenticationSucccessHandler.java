@@ -1,5 +1,7 @@
 package com.example.user.userservice.config;
 
+import com.example.user.userservice.utility.CustomUserDetail;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,27 +12,35 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @Slf4j
 public class CustomAuthenticationSucccessHandler implements AuthenticationSuccessHandler {
+
+    private final ObjectMapper mapper = new ObjectMapper();
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+                                        Authentication authentication)
+            throws IOException {
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String username = userDetails.getUsername();
-        String roles = userDetails.getAuthorities().toString();
+        CustomUserDetail user =
+                (CustomUserDetail) authentication.getPrincipal();
 
-        log.info("User '{}' successfully logged in with roles {}", username, roles);
+        log.info("User '{}' successfully logged in", user.getEmail());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("id", user.getId());
+        result.put("name", user.getName());
+        result.put("email", user.getEmail());
+        result.put("role", user.getRole());
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
 
-        String json = String.format("{\"username\": \"%s\", \"roles\": %s}",
-                username, roles);
-
-        response.getWriter().write(json);
+        mapper.writeValue(response.getWriter(), result);
     }
 }
