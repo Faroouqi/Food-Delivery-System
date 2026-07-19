@@ -5,6 +5,7 @@ import com.example.order.orderservice.dto.OrderDto;
 import com.example.order.orderservice.dto.OrderEvent;
 import com.example.order.orderservice.dto.PaymentDTO;
 import com.example.order.orderservice.service.OrderService;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,9 +58,23 @@ public class OrderManagement {
 
     }
     @GetMapping("view/{id}")
-    public ResponseEntity<?> viewOrder(@RequestParam Long id)
+    public ResponseEntity<?> viewOrder(@PathVariable Long id)
     {
+        log.info("INside with id is: " + id);
         return ResponseEntity.ok(service.getOrders(id));
+    }
+
+    @GetMapping("user/{id}")
+    public ResponseEntity<?> getOrder(@PathVariable Integer id)
+    {
+        log.info("INside with id is: " + id);
+        return ResponseEntity.ok(service.getOrderById(id));
+    }
+
+    @GetMapping("restaurant/{id}")
+    public ResponseEntity<?> getOrderByRestaurantId(@PathVariable Long id)
+    {
+        return ResponseEntity.ok(service.getOrderByRestaurantId(id));
     }
 
     public PaymentDTO getDto(BigDecimal amount,String paymentMethod)

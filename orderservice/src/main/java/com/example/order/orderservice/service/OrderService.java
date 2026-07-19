@@ -54,26 +54,18 @@ public class OrderService {
 
     @KafkaListener(topics = "order-status-events", groupId = "order-service-group")
     public void onStatusUpdate(OrderEvent event) throws InterruptedException {
+
         Order order = repository.findById(event.getOrderId().intValue())
                 .orElseThrow();
 
         order.setStatus(event.getStatus());
-        messagingTemplate.convertAndSend(
-                "/topic/orders/" + event.getUserId(),
-                event
-        );
-        Thread.sleep(10000);
-        if(order.getStatus().equals("DELIVERED"))
-        {
-            event.setStatus("COMPLETED");
-        }
+
         repository.save(order);
 
         messagingTemplate.convertAndSend(
                 "/topic/orders/" + event.getUserId(),
                 event
         );
-
 
         log.info("Order {} updated to {}", event.getOrderId(), event.getStatus());
     }
@@ -93,8 +85,15 @@ public class OrderService {
         List<OrderDto> orderDtoList = orderList.stream()
                 .map(OrderService::toDto)
                 .toList();
-
+        log.info("Orders size is " + orderList.size());
         return orderDtoList;
+    }
+
+    public OrderDto getOrderById(Integer id)
+    {
+        Optional<Order> order  = repository.findById(id);
+        if(order.isEmpty()) return new OrderDto();
+        return toDto(order.get());
     }
     public OrderDto save(OrderDto dto)
     {
@@ -137,5 +136,10 @@ public class OrderService {
         order.setOrderDate(dto.getOrderDate());
         order.setUpdatedAt(dto.getUpdatedAt());
         return order;
+    }
+
+    public List<OrderDto> getOrderByRestaurantId(Long id) {
+        List<Order> orderList =  repository.findByRestaurnatId(id);
+        return orderList.stream().map(OrderService::toDto).toList();
     }
 }
